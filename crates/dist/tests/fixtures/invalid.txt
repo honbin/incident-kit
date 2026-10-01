@@ -1,0 +1,6 @@
+0.5
+not a number
+1.5
+
+garbage
+2.5
