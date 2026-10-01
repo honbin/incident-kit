@@ -1,0 +1,55 @@
+//! End-to-end smoke tests: run the built binary against fixtures on stdin.
+//! Uses `CARGO_BIN_EXE_series` (set by Cargo) — std only, no dev-dependencies.
+
+use std::io::Write;
+use std::process::{Command, Output, Stdio};
+
+fn run(stdin: &str) -> Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_series"))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("spawn series");
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(stdin.as_bytes())
+        .unwrap();
+    child.wait_with_output().expect("wait series")
+}
+
+#[test]
+fn sorts_and_summarizes() {
+    let out = run(include_str!("fixtures/series.txt"));
+    assert!(out.status.success());
+    let stdout = String::from_utf8(out.stdout).unwrap();
+
+    // unordered input is sorted by time
+    let at_20 = stdout.find("10:20:00").expect("10:20:00 row");
+    let at_22 = stdout.find("10:22:00").expect("10:22:00 row");
+    assert!(at_20 < at_22, "rows not sorted:\n{stdout}");
+
+    // extremes tagged with their time; ramp spans min..max
+    assert!(stdout.contains("103  at 10:22:00"), "stdout:\n{stdout}");
+    assert!(stdout.contains("12  at 10:20:00"), "stdout:\n{stdout}");
+    assert!(stdout.contains('█'), "no peak block:\n{stdout}");
+    assert!(stdout.contains('▁'), "no trough block:\n{stdout}");
+}
+
+#[test]
+fn skips_garbage_but_still_succeeds() {
+    let out = run(include_str!("fixtures/invalid.txt"));
+    assert!(out.status.success());
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("skipped 2"), "stderr:\n{stderr}");
+}
+
+#[test]
+fn empty_input_fails_cleanly() {
+    let out = run("");
+    assert!(!out.status.success());
+    let stderr = String::from_utf8(out.stderr).unwrap();
+    assert!(stderr.contains("no 'timestamp value'"), "stderr:\n{stderr}");
+}
