@@ -1,4 +1,4 @@
-//! Golden regression: a shrunk, anonymized 502 incident. Piping the toolbox the
+//! Golden regression: a synthetic 502 incident. Piping the toolbox the
 //! way we would during triage must still rediscover the known peak.
 //!
 //! `events.txt` is the raw stream; `expected.txt` is burst's summary block for
