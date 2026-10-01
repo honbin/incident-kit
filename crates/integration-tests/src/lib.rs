@@ -46,7 +46,8 @@ pub fn run(name: &str, args: &[&str], input: &[u8]) -> Output {
         .stderr(Stdio::null())
         .spawn()
         .unwrap_or_else(|e| panic!("spawn {name}: {e}"));
-    child.stdin.take().unwrap().write_all(input).unwrap();
+    // ignore BrokenPipe: the child may exit before reading stdin
+    let _ = child.stdin.take().unwrap().write_all(input);
     child
         .wait_with_output()
         .unwrap_or_else(|e| panic!("wait {name}: {e}"))

@@ -11,12 +11,8 @@ fn run(stdin: &str) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .expect("spawn series");
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(stdin.as_bytes())
-        .unwrap();
+    // ignore BrokenPipe: the child may exit before reading stdin (e.g. arg error)
+    let _ = child.stdin.take().unwrap().write_all(stdin.as_bytes());
     child.wait_with_output().expect("wait series")
 }
 

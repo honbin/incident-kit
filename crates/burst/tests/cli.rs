@@ -14,12 +14,8 @@ fn run(stdin: &str) -> Output {
         .expect("spawn burst");
     // Dropping the stdin handle at the end of this statement closes the pipe,
     // so burst sees EOF and finishes.
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(stdin.as_bytes())
-        .unwrap();
+    // ignore BrokenPipe: the child may exit before reading stdin (e.g. arg error)
+    let _ = child.stdin.take().unwrap().write_all(stdin.as_bytes());
     child.wait_with_output().expect("wait burst")
 }
 
