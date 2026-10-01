@@ -97,9 +97,9 @@ correlate 502.txt sigterm.txt --window 5s
 
 Reads one RFC3339 timestamp per line from two files and reports, in both
 directions, what fraction of one stream's events have an event in the other
-within the specified ±window (`5s` / `2m` / `1h` / bare seconds; default 1s). Both
-directions
-matter — "71% of 502s were near a SIGTERM" and "83% of SIGTERMs were near a 502"
+within the specified ±window (`5s` / `2m` / `1h` / bare seconds; default 1s).
+Both directions matter — "71% of 502s were near a SIGTERM" and "83% of SIGTERMs
+were near a 502"
 are different facts. It counts matched events, not pairs.
 
 ## series
