@@ -88,6 +88,20 @@ prints count / min / mean / p50 / p90 / p95 / p99 / max / stddev. Unit-agnostic 
 feed ms, seconds, or counts and read the result in the same unit. Percentiles are
 nearest-rank (no interpolation), so each is an actually-observed value.
 
+## correlate
+
+```
+# did the 502s and the SIGTERMs cluster at the same time?
+correlate 502.txt sigterm.txt --window 5s
+```
+
+Reads one RFC3339 timestamp per line from two files and reports, in both
+directions, what fraction of one stream's events have an event in the other
+within the specified ±window (`5s` / `2m` / `1h` / bare seconds; default 1s). Both
+directions
+matter — "71% of 502s were near a SIGTERM" and "83% of SIGTERMs were near a 502"
+are different facts. It counts matched events, not pairs.
+
 ## series
 
 ```
