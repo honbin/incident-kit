@@ -1,0 +1,5 @@
+events         17
+peak            6  /s at 10:21:31
+first    10:21:29
+last     10:21:32
+span     3s (first→last)
