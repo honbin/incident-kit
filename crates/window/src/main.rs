@@ -1,10 +1,10 @@
-//! `window` — pass through stdin lines whose timestamp falls in a time range.
+//! `incident-window` — pass through stdin lines whose timestamp falls in a time range.
 //!
 //! A Unix filter: it reads the RFC3339 timestamp from each line, and if it lies
 //! within [--from, --to] (inclusive), prints the *original line unchanged*. So
 //! it composes in front of other tools:
 //!
-//!     cat alb.jsonl | window --from … --to … | jq -r .time | burst
+//!     cat alb.jsonl | incident-window --from … --to … | jq -r .time | incident-burst
 //!
 //! Comparison is on the instant, so --from/--to may use any offset and lines may
 //! mix offsets — window never reformats timestamps, it only decides keep/drop.
@@ -17,17 +17,17 @@ use tstamp::parse_line;
 use window::in_range;
 
 const HELP: &str = "\
-window — pass through stdin lines whose RFC3339 timestamp is in [from, to]
+incident-window — pass through stdin lines whose RFC3339 timestamp is in [from, to]
 
 usage:
-    window [--from <RFC3339>] [--to <RFC3339>]
+    incident-window [--from <RFC3339>] [--to <RFC3339>]
 
 At least one bound is required; bounds are inclusive. The timestamp is read from
 each line (leading token, surrounding quotes stripped) and the original line is
 printed unchanged. --from/--to may use any UTC offset.
 
 example:
-    window --from 2026-09-03T10:20:00+09:00 --to 2026-09-03T10:30:00+09:00";
+    incident-window --from 2026-09-03T10:20:00+09:00 --to 2026-09-03T10:30:00+09:00";
 
 struct Args {
     from: Option<DateTime<FixedOffset>>,
@@ -66,7 +66,7 @@ fn main() -> ExitCode {
     let args = match parse_args() {
         Ok(args) => args,
         Err(msg) => {
-            eprintln!("window: {msg}");
+            eprintln!("incident-window: {msg}");
             return ExitCode::FAILURE;
         }
     };
@@ -80,7 +80,7 @@ fn main() -> ExitCode {
         let line = match line {
             Ok(line) => line,
             Err(e) => {
-                eprintln!("window: read error: {e}");
+                eprintln!("incident-window: read error: {e}");
                 return ExitCode::FAILURE;
             }
         };
@@ -92,7 +92,7 @@ fn main() -> ExitCode {
                     if e.kind() == io::ErrorKind::BrokenPipe {
                         return ExitCode::SUCCESS;
                     }
-                    eprintln!("window: write error: {e}");
+                    eprintln!("incident-window: write error: {e}");
                     return ExitCode::FAILURE;
                 }
                 kept += 1;
@@ -107,9 +107,9 @@ fn main() -> ExitCode {
     }
 
     if skipped > 0 {
-        eprintln!("window: kept {kept} / {total} lines (skipped {skipped} unparseable)");
+        eprintln!("incident-window: kept {kept} / {total} lines (skipped {skipped} unparseable)");
     } else {
-        eprintln!("window: kept {kept} / {total} lines");
+        eprintln!("incident-window: kept {kept} / {total} lines");
     }
     ExitCode::SUCCESS
 }

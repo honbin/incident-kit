@@ -1,11 +1,11 @@
 //! End-to-end smoke tests: run the built binary with args and stdin.
-//! Uses `CARGO_BIN_EXE_window` (set by Cargo) — std only, no dev-dependencies.
+//! Uses `CARGO_BIN_EXE_incident-window` (set by Cargo) — std only, no dev-dependencies.
 
 use std::io::Write;
 use std::process::{Command, Output, Stdio};
 
 fn run(args: &[&str], stdin: &str) -> Output {
-    let mut child = Command::new(env!("CARGO_BIN_EXE_window"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_incident-window"))
         .args(args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

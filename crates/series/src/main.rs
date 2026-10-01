@@ -1,4 +1,4 @@
-//! `series` — view a `timestamp value` series as a sparkline over time.
+//! `incident-series` — view a `timestamp value` series as a sparkline over time.
 //!
 //! Reads `RFC3339 <ws> number` lines (order doesn't matter; sorted internally)
 //! and prints one row per point — time, sparkline level, value — then points /
@@ -6,7 +6,7 @@
 //! `(timestamp, value)` series — e.g. CloudWatch datapoints:
 //!
 //!     aws cloudwatch get-metric-statistics ... \
-//!       --query 'Datapoints[].[Timestamp,Sum]' --output text | series
+//!       --query 'Datapoints[].[Timestamp,Sum]' --output text | incident-series
 //!
 //! Times are shown in the input's offset (like `burst`), and all points must
 //! share one offset — mixed offsets are rejected.
@@ -20,17 +20,17 @@ use series::{block_index, parse_point};
 const RAMP: [char; 8] = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
 
 const HELP: &str = "\
-series — view a timestamp/value series as a sparkline
+incident-series — view a timestamp/value series as a sparkline
 
 usage:
-    <RFC3339 value> | series
-    series -h | --help
+    <RFC3339 value> | incident-series
+    incident-series -h | --help
 
 Reads `timestamp value` lines on stdin (order doesn't matter, sorted internally)
 and prints a sparkline over time plus points / sum / min / max.
 
 example:
-    aws cloudwatch get-metric-statistics ... --output text | series";
+    aws cloudwatch get-metric-statistics ... --output text | incident-series";
 
 fn main() -> ExitCode {
     if let Some(arg) = std::env::args().nth(1) {
@@ -40,7 +40,7 @@ fn main() -> ExitCode {
                 return ExitCode::SUCCESS;
             }
             other => {
-                eprintln!("series: unexpected argument: {other}\n\n{HELP}");
+                eprintln!("incident-series: unexpected argument: {other}\n\n{HELP}");
                 return ExitCode::FAILURE;
             }
         }
@@ -54,7 +54,7 @@ fn main() -> ExitCode {
         let line = match line {
             Ok(line) => line,
             Err(e) => {
-                eprintln!("series: read error: {e}");
+                eprintln!("incident-series: read error: {e}");
                 return ExitCode::FAILURE;
             }
         };
@@ -65,7 +65,7 @@ fn main() -> ExitCode {
                     None => offset = Some(this),
                     // Keep one display offset for the whole stream (same reasoning as burst).
                     Some(first) if first != this => {
-                        eprintln!("series: mixed UTC offsets: {first} and {this}");
+                        eprintln!("incident-series: mixed UTC offsets: {first} and {this}");
                         return ExitCode::FAILURE;
                     }
                     Some(_) => {}
@@ -81,10 +81,10 @@ fn main() -> ExitCode {
     }
 
     if skipped > 0 {
-        eprintln!("series: skipped {skipped} unparseable line(s)");
+        eprintln!("incident-series: skipped {skipped} unparseable line(s)");
     }
     if points.is_empty() {
-        eprintln!("series: no 'timestamp value' points on stdin");
+        eprintln!("incident-series: no 'timestamp value' points on stdin");
         return ExitCode::FAILURE;
     }
 

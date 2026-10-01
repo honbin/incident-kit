@@ -7,3 +7,7 @@ license.workspace = true
 [dependencies]
 chrono.workspace = true
 tstamp.workspace = true
+
+[[bin]]
+name = "incident-series"
+path = "src/main.rs"

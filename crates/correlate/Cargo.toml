@@ -6,3 +6,7 @@ license.workspace = true
 
 [dependencies]
 tstamp.workspace = true
+
+[[bin]]
+name = "incident-correlate"
+path = "src/main.rs"

@@ -1,4 +1,4 @@
-//! `correlate` — how often two timestamped event streams co-occur in time.
+//! `incident-correlate` — how often two timestamped event streams co-occur in time.
 //!
 //! Reads one RFC3339 timestamp per line from two files and reports, in both
 //! directions, what fraction of one stream's events have an event in the other
@@ -7,30 +7,30 @@
 //! different facts.
 //!
 //! example:
-//!     correlate 502.txt sigterm.txt --window 5s
+//!     incident-correlate 502.txt sigterm.txt --window 5s
 
 use std::process::ExitCode;
 
 use correlate::{count_matched, parse_duration_secs};
 
 const HELP: &str = "\
-correlate — how often two timestamped event streams co-occur in time
+incident-correlate — how often two timestamped event streams co-occur in time
 
 usage:
-    correlate <A> <B> [--window <dur>]
+    incident-correlate <A> <B> [--window <dur>]
 
 Reads one RFC3339 timestamp per line from files A and B, and reports — in both
 directions — what fraction of one stream's events have an event in the other
 within ±window. --window accepts 5s / 2m / 1h / bare seconds (default 1s).
 
 example:
-    correlate 502.txt sigterm.txt --window 5s";
+    incident-correlate 502.txt sigterm.txt --window 5s";
 
 fn main() -> ExitCode {
     match run() {
         Ok(code) => code,
         Err(msg) => {
-            eprintln!("correlate: {msg}");
+            eprintln!("incident-correlate: {msg}");
             ExitCode::FAILURE
         }
     }
@@ -121,6 +121,6 @@ fn report(name: &str, events: usize, matched: usize, skipped: u64) {
     println!("  events   {events:>8}");
     println!("  matched  {matched:>8}   {pct:.1}%");
     if skipped > 0 {
-        eprintln!("correlate: {name}: skipped {skipped} unparseable line(s)");
+        eprintln!("incident-correlate: {name}: skipped {skipped} unparseable line(s)");
     }
 }
