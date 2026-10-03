@@ -30,6 +30,10 @@ pub struct Stats {
 /// and matches "the value at or below which p% of samples fall".
 pub fn percentile(sorted: &[f64], p: f64) -> f64 {
     debug_assert!(!sorted.is_empty(), "percentile of empty slice");
+    debug_assert!(
+        sorted.is_sorted(),
+        "percentile requires an ascending-sorted slice"
+    );
     let n = sorted.len();
     let rank = ((p / 100.0) * n as f64).ceil() as usize;
     sorted[rank.clamp(1, n) - 1]

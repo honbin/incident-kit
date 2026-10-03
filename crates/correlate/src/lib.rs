@@ -14,6 +14,8 @@
 /// Both slices must be sorted ascending. O(n + m): `j` only moves forward
 /// because `events` is sorted, so each lower bound `e - window` is non-decreasing.
 pub fn count_matched(events: &[i64], others: &[i64], window: i64) -> usize {
+    debug_assert!(events.is_sorted(), "events must be sorted ascending");
+    debug_assert!(others.is_sorted(), "others must be sorted ascending");
     let mut matched = 0;
     let mut j = 0;
     for &e in events {
