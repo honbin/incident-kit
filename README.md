@@ -19,6 +19,32 @@ compose with `grep` / `jq` / `awk` and with each other.
 The binaries are namespaced (`incident-*`) so they don't clash with other tools
 on your `PATH`; alias them to shorter names if you like.
 
+## Timestamps
+
+Every tool expects RFC3339 timestamps with an explicit offset, such as
+`2026-10-03T10:00:00+09:00` or `…Z`. A shared timestamp contract keeps the
+tools composable and avoids guessing:
+
+- **unit** — bare epoch values don't say whether they are seconds,
+  milliseconds, or microseconds.
+- **display offset** — `incident-burst` and `incident-series` render times in
+  the input's offset, which an epoch value doesn't carry.
+
+Other formats should be normalized to RFC3339 before piping them into
+incident-kit — a job for the shell. The examples use `gawk` (macOS: `brew
+install gawk`):
+
+```sh
+# epoch seconds -> RFC3339 UTC ($1/1000 for ms)
+gawk '{ print strftime("%Y-%m-%dT%H:%M:%SZ", $1, 1) }'
+
+# Apache/CLF  [03/Oct/2026:10:21:31 +0900]  ->  2026-10-03T10:21:31+09:00
+gawk 'BEGIN { split("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec", a, " ")
+              for (i = 1; i <= 12; i++) m[a[i]] = sprintf("%02d", i) }
+      match($0, /([0-9]{2})\/([A-Za-z]{3})\/([0-9]{4}):([0-9:]{8}) ([+-][0-9]{2})([0-9]{2})/, x) {
+          print x[3]"-"m[x[2]]"-"x[1]"T"x[4] x[5]":"x[6] }'
+```
+
 ## Layout
 
 A Cargo workspace; one crate per tool under `crates/`, plus `tstamp`, a small
