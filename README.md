@@ -20,6 +20,30 @@ compose with `grep` / `jq` / `awk` and with each other.
 The binaries are namespaced (`incident-*`) so they don't clash with other tools
 on your `PATH`; alias them to shorter names if you like.
 
+## Install
+
+Install the `incident-*` binaries straight from GitHub:
+
+```
+cargo install --git https://github.com/honbin/incident-kit --locked \
+  burst window dist correlate series align timeline
+```
+
+Cargo installs them to its default bin directory (`~/.cargo/bin`) — make sure
+that's on your `PATH`.
+
+Install only the tools you want — just name fewer:
+
+```
+cargo install --git https://github.com/honbin/incident-kit --locked burst
+```
+
+Developing from a local clone? Use `--path` instead:
+
+```
+cargo install --locked --path crates/burst
+```
+
 ## Timestamps
 
 Every tool expects RFC3339 timestamps with an explicit offset, such as
