@@ -235,6 +235,35 @@ fn fmt_val(v: f64) -> String {
     format!("{v:.3}")
 }
 
+/// Parse a fixed UTC offset written as `±HH:MM` (e.g. `+09:00`). Region names
+/// and DST are out of scope — a fixed offset needs no timezone database.
+pub fn parse_offset(s: &str) -> Result<FixedOffset, String> {
+    fn bad(s: &str) -> String {
+        format!("--display-offset must be ±HH:MM, e.g. +09:00 (got {s:?})")
+    }
+    // exact ±HH:MM shape — reject +9:00, +009:00, +09:0 etc.
+    if s.len() != 6 || s.as_bytes().get(3) != Some(&b':') {
+        return Err(bad(s));
+    }
+    let sign = match s.as_bytes().first() {
+        Some(b'+') => 1,
+        Some(b'-') => -1,
+        _ => return Err(bad(s)),
+    };
+    let (h, m) = s[1..].split_once(':').ok_or_else(|| bad(s))?;
+    // HH and MM must be ASCII digits — parse() alone would accept "+9" or "-0"
+    if !h.bytes().chain(m.bytes()).all(|b| b.is_ascii_digit()) {
+        return Err(bad(s));
+    }
+    let hours: i32 = h.parse().map_err(|_| bad(s))?;
+    let mins: i32 = m.parse().map_err(|_| bad(s))?;
+    if !(0..60).contains(&mins) {
+        return Err(bad(s));
+    }
+    FixedOffset::east_opt(sign * (hours * 3600 + mins * 60))
+        .ok_or_else(|| format!("--display-offset {s:?} is out of range"))
+}
+
 /// Escape the few characters that would break HTML/SVG text (names are
 /// filenames, which can contain `&` or `<`).
 fn esc(s: &str) -> String {
@@ -319,5 +348,34 @@ mod tests {
         );
         // a genuinely flat series shows them equal
         assert_eq!(fmt_minmax(5.0, 5.0), ("5".to_string(), "5".to_string()));
+    }
+
+    #[test]
+    fn parse_offset_accepts_signed_hh_mm() {
+        assert_eq!(
+            parse_offset("+09:00"),
+            Ok(FixedOffset::east_opt(9 * 3600).unwrap())
+        );
+        assert_eq!(
+            parse_offset("-05:30"),
+            Ok(FixedOffset::east_opt(-(5 * 3600 + 30 * 60)).unwrap())
+        );
+        assert_eq!(
+            parse_offset("+00:00"),
+            Ok(FixedOffset::east_opt(0).unwrap())
+        );
+    }
+
+    #[test]
+    fn parse_offset_rejects_bad_input() {
+        assert!(parse_offset("09:00").is_err()); // no sign
+        assert!(parse_offset("+0900").is_err()); // no colon
+        assert!(parse_offset("+9:00").is_err()); // hours not two digits
+        assert!(parse_offset("+09:0").is_err()); // minutes not two digits
+        assert!(parse_offset("++9:00").is_err()); // sign where a digit belongs
+        assert!(parse_offset("Asia/Tokyo").is_err()); // region name
+        assert!(parse_offset("+09:99").is_err()); // minutes out of range
+        assert!(parse_offset("+40:00").is_err()); // offset out of range
+        assert!(parse_offset("").is_err());
     }
 }
