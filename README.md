@@ -114,6 +114,20 @@ Output: a per-second histogram, then total / peak rate / first / last / span.
 Times are shown in the input's offset so they line up with the source log and
 CloudWatch without conversion.
 
+```
+10:21:29     2  ████████████
+10:21:30     3  ██████████████████
+10:21:31     5  ██████████████████████████████
+10:21:32     2  ████████████
+10:21:33     1  ██████
+
+events         13
+peak            5  /s at 10:21:31
+first    10:21:29
+last     10:21:33
+span     4s (first→last)
+```
+
 ## incident-window
 
 ```
@@ -174,6 +188,17 @@ sparkline is a linear map onto `▁▂▃▄▅▆▇█`. Unlike `incident-burs
 raw event occurrences), `incident-series` consumes values that are already
 aggregated per timestamp — e.g. CloudWatch datapoints.
 
+```
+10:20:00  ▁          12
+10:21:00  ▄          47
+10:22:00  █         103
+
+points            3
+sum             162
+min              12  at 10:20:00
+max             103  at 10:22:00
+```
+
 ## incident-align
 
 Inner-join N `timestamp value` files on their timestamp. For every timestamp
@@ -194,6 +219,8 @@ where req / lat / tasks are CloudWatch RequestCount (Sum), TargetResponseTime
 stderr so dropped (non-common) timestamps are visible.
 
 ## incident-timeline
+
+![incident-timeline: four timestamp/value series stacked on one shared time axis](docs/timeline.png)
 
 ```
 # a 502 burst next to CPU / latency / task count on one time axis
