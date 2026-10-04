@@ -15,6 +15,7 @@ compose with `grep` / `jq` / `awk` and with each other.
 | `incident-correlate` | How often two timestamped streams co-occur in time |
 | `incident-series`    | View a `timestamp value` series as a sparkline     |
 | `incident-align`     | Inner-join timestamped series on their timestamp   |
+| `incident-timeline`  | Stack timestamp/value series on a shared time axis |
 
 The binaries are namespaced (`incident-*`) so they don't clash with other tools
 on your `PATH`; alias them to shorter names if you like.
@@ -27,8 +28,9 @@ tools composable and avoids guessing:
 
 - **unit** — bare epoch values don't say whether they are seconds,
   milliseconds, or microseconds.
-- **display offset** — `incident-burst` and `incident-series` render times in
-  the input's offset, which an epoch value doesn't carry.
+- **display offset** — `incident-burst`, `incident-series`, and
+  `incident-timeline` render times in the input's offset, which an epoch value
+  doesn't carry.
 
 Other formats should be normalized to RFC3339 before piping them into
 incident-kit — a job for the shell. The examples use `gawk` (macOS: `brew
@@ -166,6 +168,30 @@ incident-align req.txt lat.txt tasks.txt \
 where req / lat / tasks are CloudWatch RequestCount (Sum), TargetResponseTime
 (Average) and LiveTaskCount (Minimum). A `common N / per-file totals` line goes to
 stderr so dropped (non-common) timestamps are visible.
+
+## incident-timeline
+
+```
+# a 502 burst next to CPU / latency / task count on one time axis
+incident-timeline \
+  --series 502.txt --series cpu.txt --series latency.txt --series tasks.txt \
+  > report.html
+```
+
+Reads one or more `RFC3339 <whitespace> number` files via `--series` (same format
+as `incident-series`; a per-second log count from `stats count() by bin(1s)` drops
+in exactly like a metric). Writes a self-contained HTML page — inline SVG, no
+JavaScript, no external assets — to stdout, ready to open or share.
+
+Each series becomes one line chart with a marker per point, on its own y-scale,
+stacked on a shared time axis, so you can see what moved together and when. The
+line only connects the points you supply — it doesn't imply a value in the gaps,
+so zero-fill upstream if you need that. Markers carry the full timestamp and value
+as a hover tooltip; each chart labels its own min / max.
+
+Unlike the summary tools, this one is for *shape and simultaneity* across signals —
+the part a per-metric summary drops. Like `incident-correlate` and `incident-align`
+it reads files (not stdin), and it emits HTML rather than text.
 
 ## License
 

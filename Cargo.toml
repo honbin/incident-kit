@@ -10,3 +10,4 @@ license = "MIT"
 [workspace.dependencies]
 chrono = "0.4"
 tstamp = { path = "crates/tstamp" }
+series = { path = "crates/series" }

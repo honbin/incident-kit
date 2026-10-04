@@ -254,6 +254,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "timeline"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "series",
+]
+
+[[package]]
 name = "tstamp"
 version = "0.1.0"
 dependencies = [
