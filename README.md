@@ -213,6 +213,10 @@ line only connects the points you supply — it doesn't imply a value in the gap
 so zero-fill upstream if you need that. Markers carry the full timestamp and value
 as a hover tooltip; each chart labels its own min / max.
 
+Axis and tooltip times default to the input's offset; `--display-offset +09:00`
+shows them at a fixed offset instead (e.g. JST), leaving values and positions
+unchanged.
+
 Unlike the summary tools, this one is for *shape and simultaneity* across signals —
 the part a per-metric summary drops. Like `incident-correlate` and `incident-align`
 it reads files (not stdin), and it emits HTML rather than text.
