@@ -94,7 +94,7 @@ fn load_series(path: &str, offset: &mut Option<FixedOffset>) -> Result<Series, S
     let mut points: Vec<(i64, f64)> = Vec::new();
     let mut skipped = 0u64;
     for line in text.lines() {
-        match series::parse_point(line) {
+        match tspoint::parse_point(line) {
             // nanos keeps sub-millisecond points distinct; None only for dates
             // outside chrono's ~1677–2262 range, treated like an unparseable line.
             Some((ts, value)) => match ts.timestamp_nanos_opt() {

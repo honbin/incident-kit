@@ -15,7 +15,8 @@ use std::io::{self, BufRead};
 use std::process::ExitCode;
 
 use chrono::{DateTime, FixedOffset};
-use series::{block_index, parse_point};
+use series::block_index;
+use tspoint::parse_point;
 
 const RAMP: [char; 8] = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
 

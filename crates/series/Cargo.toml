@@ -6,7 +6,7 @@ license.workspace = true
 
 [dependencies]
 chrono.workspace = true
-tstamp.workspace = true
+tspoint.workspace = true
 
 [[bin]]
 name = "incident-series"

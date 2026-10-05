@@ -73,11 +73,13 @@ gawk 'BEGIN { split("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec", a, " ")
 
 ## Layout
 
-A Cargo workspace; one crate per tool under `crates/`, plus `tstamp`, a small
-shared crate holding just the RFC3339 timestamp parser. It was extracted once a
-third tool needed the identical parser (the rule of three); it stays narrow on
-purpose — durations, histograms, and formatting do not belong in it. Tools still
-duplicate trivial helpers until duplication is proven.
+A Cargo workspace; one crate per tool under `crates/`, plus two small shared
+crates: `tstamp` (just the RFC3339 timestamp parser) and `tspoint` (parses one
+`timestamp value` line into a `(timestamp, value)` point, on top of `tstamp`).
+Each was extracted on the rule of three, once a third tool needed the identical
+code; both stay narrow on purpose — durations, histograms, and formatting do not
+belong in them. Tools still duplicate trivial helpers until duplication is
+proven.
 
 ## Build & test
 

@@ -1,13 +1,9 @@
 [package]
-name = "align"
+name = "tspoint"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
 chrono.workspace = true
-tspoint.workspace = true
-
-[[bin]]
-name = "incident-align"
-path = "src/main.rs"
+tstamp.workspace = true

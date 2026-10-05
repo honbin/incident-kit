@@ -3,20 +3,6 @@
 
 use std::collections::BTreeMap;
 
-use chrono::{DateTime, FixedOffset};
-
-/// Parse one `RFC3339 <ws> number` line into a `(timestamp, value)` point.
-pub fn parse_point(line: &str) -> Option<(DateTime<FixedOffset>, f64)> {
-    let mut tokens = line.split_whitespace();
-    let ts = tstamp::parse_line(tokens.next()?)?;
-    let value: f64 = tokens
-        .next()?
-        .parse()
-        .ok()
-        .filter(|v: &f64| v.is_finite())?;
-    Some((ts, value))
-}
-
 /// Inner-join series on their key. For every key present in *all* series,
 /// produce `(key, [v0, v1, ...])` with one value per series in input order.
 /// Output is sorted by key (the first series is a `BTreeMap`, iterated in order).
@@ -79,15 +65,5 @@ mod tests {
         let a = map(&[(1, 1.0)]);
         let b = map(&[(2, 2.0)]);
         assert!(inner_join(&[a, b]).is_empty());
-    }
-
-    #[test]
-    fn parses_point() {
-        assert_eq!(
-            parse_point("2026-09-03T10:20:00+09:00\t6000").map(|p| p.1),
-            Some(6000.0)
-        );
-        assert!(parse_point("2026-09-03T10:20:00+09:00").is_none());
-        assert!(parse_point("x\t1").is_none());
     }
 }

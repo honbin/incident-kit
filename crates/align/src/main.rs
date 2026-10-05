@@ -16,8 +16,9 @@
 use std::collections::BTreeMap;
 use std::process::ExitCode;
 
-use align::{inner_join, parse_point};
+use align::inner_join;
 use chrono::{DateTime, FixedOffset, Utc};
+use tspoint::parse_point;
 
 /// A `(timestamp, value)` series keyed by UTC instant.
 type Series = BTreeMap<DateTime<Utc>, f64>;

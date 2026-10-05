@@ -7,7 +7,7 @@ name = "align"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "tstamp",
+ "tspoint",
 ]
 
 [[package]]
@@ -216,7 +216,7 @@ name = "series"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "tstamp",
+ "tspoint",
 ]
 
 [[package]]
@@ -258,7 +258,15 @@ name = "timeline"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "series",
+ "tspoint",
+]
+
+[[package]]
+name = "tspoint"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "tstamp",
 ]
 
 [[package]]
