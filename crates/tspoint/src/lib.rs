@@ -2,6 +2,10 @@
 //!
 //! Shared by the tools that read two-column series (`series`, `align`,
 //! `timeline`). The timestamp half is `tstamp`'s job; this adds the value.
+//!
+//! Narrow only while those three share parse semantics — the `is_finite` value
+//! filter and treating `None` as "skip this line". If one needs to diverge,
+//! fork its own parse rather than add a flag here.
 
 use chrono::{DateTime, FixedOffset};
 
