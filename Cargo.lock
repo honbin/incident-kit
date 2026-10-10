@@ -336,6 +336,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "window-audit"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "tstamp",
+]
+
+[[package]]
 name = "windows-core"
 version = "0.62.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -11,6 +11,7 @@ compose with `grep` / `jq` / `awk` and with each other.
 |----------------------|----------------------------------------------------|
 | `incident-burst`     | Detect bursts in timestamped events                |
 | `incident-window`    | Pass through lines whose timestamp is in a range   |
+| `incident-window-audit` | Report the observed timestamp range inside a window |
 | `incident-dist`      | Summarize the distribution of a column of numbers  |
 | `incident-correlate` | How often two timestamped streams co-occur in time |
 | `incident-series`    | View a `timestamp value` series as a sparkline     |
@@ -26,7 +27,7 @@ Install the `incident-*` binaries straight from GitHub:
 
 ```
 cargo install --git https://github.com/honbin/incident-kit --locked \
-  burst window dist correlate series align timeline
+  burst window window-audit dist correlate series align timeline
 ```
 
 Cargo installs them to its default bin directory (`~/.cargo/bin`) — make sure
@@ -144,6 +145,44 @@ Reads the RFC3339 timestamp from each line (leading token, quotes stripped) and
 prints the original line unchanged when it falls in `[--from, --to]` (inclusive;
 at least one bound required). Comparison is on the instant, so the bounds and the
 lines may use any offset. A `kept N / total` summary goes to stderr.
+
+## incident-window-audit
+
+```
+# before trusting the numbers: where does the fetched data sit in the window?
+jq -r .time alb.jsonl \
+  | incident-window-audit --from 2026-09-03T10:20:00+09:00 --to 2026-09-03T10:30:00+09:00 --limit 10000
+```
+
+Reads RFC3339 timestamps from stdin and reports the observed first/last against
+the requested `[--from, --to]`, the gap at each edge, and verdict-free signals:
+`EMPTY`, `LIMIT_REACHED`, `OUT_OF_WINDOW` (an observation fell outside the stated
+window — a gap is negative). Facts, not causes: a gap means *nothing was observed
+there*, not that events were lost; `LIMIT_REACHED` only means the input rows
+reached the cap — it does not confirm truncation, and which edge a cap cut depends
+on the query's sort order, which this tool doesn't know.
+
+`--limit` must be positive and is compared against the **input row count** (parsed
+*and* unparseable lines, since the fetch cap counts both). That may still differ
+from the original fetch count if blank lines, a header, or an upstream filter sit
+between the fetch and this tool; rows dropped before this input are invisible to
+it. Durations print in seconds or larger units, with sub-second magnitudes in
+milliseconds and non-zero sub-millisecond magnitudes as `<1ms` / `>-1ms`, so a
+non-zero gap never shows as `0s`. Timestamps are printed in RFC3339 with their
+input offset, keeping sub-second precision, so the displayed range
+stays consistent with the gaps. Unparseable lines are reported as `unparsed N`.
+
+```
+window    2026-09-03T10:20:00+09:00 → 2026-09-03T10:30:00+09:00
+observed  2026-09-03T10:20:04+09:00 → 2026-09-03T10:30:00+09:00
+rows      10000 / 10000
+
+start gap 4s
+end gap   0s
+
+signals:
+  LIMIT_REACHED
+```
 
 ## incident-dist
 
