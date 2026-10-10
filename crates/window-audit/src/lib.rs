@@ -109,6 +109,17 @@ mod tests {
     }
 
     #[test]
+    fn observations_on_window_edges_have_zero_gaps() {
+        // from/to are inclusive (strict < / >), so an observation exactly on each edge
+        // gives a zero gap and no OUT_OF_WINDOW.
+        let o = obs("2026-10-10T10:00:00+09:00", "2026-10-10T11:00:00+09:00");
+        let a = audit(&win(), Some(&o), 2, None);
+        assert_eq!(a.start_gap, Some(Duration::zero()));
+        assert_eq!(a.end_gap, Some(Duration::zero()));
+        assert!(a.signals.is_empty());
+    }
+
+    #[test]
     fn limit_reached_when_rows_hit_cap() {
         let o = obs("2026-10-10T10:08:00+09:00", "2026-10-10T10:47:00+09:00");
         // Only 2 parsed events, but 10000 input rows reached the cap.
